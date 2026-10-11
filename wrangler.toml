@@ -1,0 +1,9 @@
+name = "thep-board"
+main = "worker/src/index.js"
+compatibility_date = "2025-09-01"
+
+# Worker phục vụ luôn giao diện trong frontend/ (Static Assets, miễn phí, không tính vào quota request).
+# Request không khớp file tĩnh nào (ví dụ /api/*) mới chạy vào Worker.
+[assets]
+directory = "./frontend"
+binding = "ASSETS"

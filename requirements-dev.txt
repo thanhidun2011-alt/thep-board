@@ -1,0 +1,2 @@
+# Chỉ dùng cho scripts/screenshot.py (chụp ảnh kiểm tra giao diện), không cần khi deploy
+playwright==1.63.0

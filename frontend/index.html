@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Thép Board</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%233d8bfd'/><text x='16' y='22' font-size='16' font-family='Arial' font-weight='700' fill='white' text-anchor='middle'>T</text></svg>">
+  <script>
+    try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#/HPG"><span class="brand-mark">T</span><span class="txt">Thép<b>Board</b></span></a>
+    <nav class="nav">
+      <a href="#/HPG" data-page="stock" class="active">Doanh nghiệp</a>
+      <a href="#/hang-hoa" data-page="commodities">Hàng hóa</a>
+      <a href="#/vi-mo" data-page="macro">Vĩ mô &amp; Tỷ giá</a>
+    </nav>
+    <div class="spacer"></div>
+    <div class="search">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="searchInput" placeholder="Tìm mã thép: HPG, HSG, NKG…" autocomplete="off" aria-label="Tìm mã cổ phiếu">
+      <div class="search-results" id="searchResults" role="listbox"></div>
+    </div>
+    <button class="icon-btn" id="themeBtn" title="Đổi giao diện sáng/tối" aria-label="Đổi giao diện sáng/tối"></button>
+  </header>
+
+  <div class="layout">
+    <aside class="col col-left">
+      <section class="card">
+        <div class="card-h"><span class="bar-accent"></span><h3 id="idxTitle">VN-Index</h3><span class="right sub" id="idxDate"></span></div>
+        <div class="idx-ohlc num" id="idxOhlc"></div>
+        <div id="idxChart"></div>
+        <div class="ranges" id="idxRanges"></div>
+        <div id="idxList"></div>
+      </section>
+      <section class="card">
+        <div class="card-h"><span class="bar-accent"></span><h3>Cổ phiếu ngành thép</h3><span class="right sub">10 mã</span></div>
+        <div id="watchlist"><div class="skeleton">Đang tải…</div></div>
+      </section>
+    </aside>
+
+    <main class="col col-main" id="pageStock">
+      <section class="card stock-head" id="stockHead"><div class="skeleton">Đang tải…</div></section>
+
+      <section class="card">
+        <div class="chart-toolbar">
+          <div class="ranges" id="priceRanges" style="padding:0"></div>
+          <div class="legend-inline">
+            <span><i style="background:var(--series-1)"></i>MA20</span>
+            <span><i style="background:var(--series-2)"></i>MA50</span>
+          </div>
+          <div class="note-line num" id="priceOhlc"></div>
+        </div>
+        <div id="priceChart"></div>
+      </section>
+
+      <section class="kpis" id="kpis"></section>
+
+      <section class="card">
+        <div class="tabs" id="tabs" role="tablist">
+          <button data-tab="overview" class="active">Kết quả kinh doanh</button>
+          <button data-tab="financials">Báo cáo tài chính</button>
+          <button data-tab="peers">So sánh cùng ngành</button>
+          <button data-tab="profile">Hồ sơ công ty</button>
+        </div>
+        <div class="tab-body" id="tabBody"></div>
+      </section>
+    </main>
+
+    <main class="col col-main" id="pageCommodities" hidden>
+      <section class="card page-head cm-head">
+        <div>
+          <h1>Giá hàng hóa</h1>
+          <p id="cmDesc">Giá hợp đồng tương lai, đóng cửa theo ngày</p>
+        </div>
+        <div class="seg" id="cmGroups" role="tablist" aria-label="Nhóm hàng hóa">
+          <button data-g="steel" class="active">Ngành thép</button>
+          <button data-g="energy">Năng lượng &amp; Nông sản</button>
+        </div>
+      </section>
+      <section class="cm-grid" id="cmGrid"><div class="card skeleton">Đang tải…</div></section>
+      <section class="card">
+        <div class="card-h"><span class="bar-accent"></span><h3 id="cmTitle">–</h3><span class="sub" id="cmSub"></span><span class="right sub num" id="cmOhlc"></span></div>
+        <div class="ranges" id="cmRanges" style="padding:0 14px"></div>
+        <div id="cmChart" class="cm-chart"></div>
+      </section>
+      <section class="card">
+        <div class="card-h"><span class="bar-accent"></span><h3>Diễn biến tương đối</h3><span class="sub">Chỉ số hoá về 100 tại đầu kỳ để so sánh các mặt hàng khác đơn vị</span></div>
+        <div class="chart-toolbar" style="padding-top:0"><div class="ranges" id="cmCmpRanges" style="padding:0"></div></div>
+        <div class="cm-legend" id="cmLegend"></div>
+        <div id="cmCmpChart" class="cm-chart"></div>
+      </section>
+      <section class="card">
+        <div class="card-h"><span class="bar-accent"></span><h3>Bảng tổng hợp</h3><span class="right sub">% thay đổi giá</span></div>
+        <div class="card-b"><div class="tbl-wrap" id="cmTable"></div></div>
+      </section>
+      <section class="card card-b cm-note" id="cmNote"></section>
+    </main>
+
+    <main class="col col-main" id="pageMacro" hidden>
+      <section class="card page-head placeholder">
+        <h1>Vĩ mô &amp; Tỷ giá</h1>
+        <p>Đang phát triển: tỷ giá USD/VND, CNY/VND, lãi suất và các chỉ số vĩ mô liên quan đến ngành thép.</p>
+      </section>
+    </main>
+
+    <aside class="col col-right">
+      <section class="card">
+        <div class="card-h"><span class="bar-accent"></span><h3>Ngành thép hôm nay</h3><span class="right sub" id="sectorDate"></span></div>
+        <div class="card-b" id="sectorCard"><div class="skeleton">Đang tải…</div></div>
+      </section>
+      <section class="card">
+        <div class="card-h"><span class="bar-accent"></span><h3>Khối ngoại mua/bán ròng</h3><span class="right sub">tỷ đồng</span></div>
+        <div class="card-b" id="foreignCard"><div class="skeleton">Đang tải…</div></div>
+      </section>
+      <section class="card">
+        <div class="card-h"><span class="bar-accent"></span><h3>Độ rộng thị trường</h3></div>
+        <div class="card-b" id="breadthCard"><div class="skeleton">Đang tải…</div></div>
+      </section>
+    </aside>
+  </div>
+  <div class="footer">Dữ liệu: Vietcap (VCI), Yahoo Finance, Sina Finance · Giá cổ phiếu tính theo nghìn đồng · Chỉ mang tính tham khảo, không phải khuyến nghị đầu tư</div>
+
+  <script src="js/config.js"></script>
+  <script src="js/format.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/commodities.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
