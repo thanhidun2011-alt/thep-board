@@ -175,11 +175,16 @@ Lấy bố cục FireAnt (fireant.vn) làm mẫu tham khảo. **Không** dùng t
 
 ## Deploy
 
+- **Web:** https://thep-board.thep-board.workers.dev. Worker tên `thep-board`, subdomain workers.dev là `thep-board`.
+- **Repo:** https://github.com/thanhidun2011-alt/thep-board (private), nhánh `main`.
 - Giao diện và API chạy chung trên **Cloudflare Workers** (gói miễn phí). GitHub dùng để lưu code.
+- Shell của Claude không đăng nhập GitHub được, vì Git Credential Manager không hiện được hộp thoại. Lệnh `git push` đầu tiên phải do người dùng tự chạy trong terminal của VS Code.
 - Bật **Workers Builds** (kết nối repo GitHub trong dashboard Cloudflare): mỗi lần `git push` lên nhánh chính, Cloudflare tự chạy `npx wrangler deploy`.
 - Deploy thủ công: `npx wrangler login`, sau đó `npm run deploy`.
 - Tùy chọn đặt giao diện trên GitHub Pages: publish thư mục `frontend/` và điền URL Worker vào `frontend/js/config.js`. Worker đã trả header CORS `*`.
-- **Chưa kiểm chứng sau deploy:**
-  - Vietcap, Yahoo, Sina có chặn IP của Cloudflare không.
-  - Các request có nằm trong giới hạn 10ms CPU không.
-  - Kiểm tra bằng `npx wrangler tail` và trang Metrics của Worker.
+- **Đã kiểm chứng 11/10/2026 sau deploy:**
+  - Vietcap, Yahoo và Sina đều trả dữ liệu khi gọi từ Cloudflare.
+  - Tất cả endpoint trả 200, không có lỗi 1102 (vượt CPU), kể cả `rubber-shfe?range=5y` với khoảng 5.300 nến từ Sina.
+  - Sina chậm 3–5 giây ở lần tải đầu, các lần sau dùng cache.
+  - Theo dõi log bằng `npx wrangler tail`.
+- Subdomain workers.dev mới tạo cần khoảng 5 phút để có chứng chỉ HTTPS. Trước đó request sẽ báo lỗi SSL handshake.
