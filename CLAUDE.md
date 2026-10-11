@@ -14,7 +14,7 @@ Web chỉ theo dõi đúng 10 mã: **HPG, HSG, NKG, GDA, VGS, POM, TVN, TIS, TLH
 - Windows 10, shell PowerShell 5.1: không dùng `&&` hay `||`, nối lệnh bằng `;`.
 - Node 24 và npm có sẵn. Backend là **Cloudflare Worker (JavaScript)**, không còn backend Python.
 - Python 3.12 trong `.venv` chỉ dùng cho script chụp ảnh: gọi bằng `.\.venv\Scripts\python`. Lệnh `python` và `pip` không có trong PATH.
-- Máy **chưa có git**.
+- Git 2.56 đã cài; xem cách gọi git từ shell của Claude ở mục Deploy.
 - Thư mục dự án có dấu cách (`E:\new pj\code`), nên luôn đặt đường dẫn trong ngoặc kép.
 
 ## Chạy trên máy
@@ -178,9 +178,12 @@ Lấy bố cục FireAnt (fireant.vn) làm mẫu tham khảo. **Không** dùng t
 - **Web:** https://thep-board.thep-board.workers.dev. Worker tên `thep-board`, subdomain workers.dev là `thep-board`.
 - **Repo:** https://github.com/thanhidun2011-alt/thep-board (private), nhánh `main`.
 - Giao diện và API chạy chung trên **Cloudflare Workers** (gói miễn phí). GitHub dùng để lưu code.
-- Shell của Claude không đăng nhập GitHub được, vì Git Credential Manager không hiện được hộp thoại. Lệnh `git push` đầu tiên phải do người dùng tự chạy trong terminal của VS Code.
-- Bật **Workers Builds** (kết nối repo GitHub trong dashboard Cloudflare): mỗi lần `git push` lên nhánh chính, Cloudflare tự chạy `npx wrangler deploy`.
-- Deploy thủ công: `npx wrangler login`, sau đó `npm run deploy`.
+- **Tự động deploy đã bật** (Workers Builds, nhánh `main`, deploy command `npx wrangler deploy`). Push lên `main` thì khoảng 40 giây sau web có bản mới. Đã kiểm chứng ngày 11/10/2026.
+- **Quy trình sửa:** sửa code, chạy `npm run dev` và chụp screenshot để kiểm tra, rồi `git commit` và `git push origin main`. Push lên `main` là deploy thẳng ra web thật, nên phải kiểm tra trên máy trước.
+- Thông tin đăng nhập GitHub đã lưu trong Windows Credential Manager, nên shell của Claude push được. Đặt `$env:GIT_TERMINAL_PROMPT = "0"` để lệnh báo lỗi ngay thay vì treo chờ đăng nhập.
+- Shell của Claude phải nạp lại PATH trước khi gọi git: `$env:Path = [Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [Environment]::GetEnvironmentVariable("Path","User")`. Git nằm ở `C:\Program Files\Git\cmd\git.exe`.
+- Người dùng code bằng **Antigravity**. Terminal mở trước khi cài git sẽ không nhận lệnh `git`, cần khởi động lại Antigravity hoặc gọi bằng đường dẫn đầy đủ.
+- Deploy thủ công khi cần (không qua GitHub): `npx wrangler login`, sau đó `npm run deploy`.
 - Tùy chọn đặt giao diện trên GitHub Pages: publish thư mục `frontend/` và điền URL Worker vào `frontend/js/config.js`. Worker đã trả header CORS `*`.
 - **Đã kiểm chứng 11/10/2026 sau deploy:**
   - Vietcap, Yahoo và Sina đều trả dữ liệu khi gọi từ Cloudflare.
